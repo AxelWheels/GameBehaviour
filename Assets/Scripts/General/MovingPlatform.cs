@@ -21,6 +21,7 @@ public class MovingPlatform : MonoBehaviour {
         time += Time.deltaTime;
         if (changeX)
             _rigidBody.velocity.x = amplitude * Mathf.Sin(2 * Mathf.PI * frequency * time);
-
-	}
+        if (changeY)
+            _rigidBody.velocity.y = amplitude * Mathf.Sin(2 * Mathf.PI * frequency * time);
+    }
 }

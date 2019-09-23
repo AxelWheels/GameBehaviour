@@ -19,7 +19,6 @@ namespace AI
 
         [SerializeField] private Player aiPlayer;
         [SerializeField] private AStar agentPathfinding;
-        [SerializeField] private float agentSpeed = 1f;
 
         [SerializeField] private List<Node> availableNodes;
         private List<Node> currentPath = new List<Node>();
@@ -39,9 +38,8 @@ namespace AI
 
             GetNextPath();
             if (currentPath.Count > 0)
-            {
                 SetBezierCurvePoints(aiPlayer._RigidBody.Position, (currentPath[currentPath.Count - 1].position));
-            }
+
             time = Mathf.Max(0.5f, agentDirection.Magnitude() / 400f);
         }
 
@@ -53,6 +51,7 @@ namespace AI
 
             int pathSize = currentPath.Count;
             aiPlayer.horizontalInput = 0.0f;
+            aiPlayer.verticalInput = 0.0f;
 
             //Calculate direction to next node based on AI position and node position
             //Check that the current node does not equal the final node in the path
@@ -61,25 +60,40 @@ namespace AI
                 //Calculate direction to next node
                 Vec2 nextPos = currentNode.edges[currentNode.pathIndex].nextNode.position;
                 agentDirection = (nextPos - aiPlayer._RigidBody.Position);
-                if (bTime >= time && aiPlayer.CanJump)
-                {
-                    //BezierCurve Smoothing for AI path
-                    //Curve is created between current ai position and next node and will then apply a velocity along the curve direction
-                    SetBezierCurvePoints(aiPlayer._RigidBody.Position, nextPos);
 
-                    //Get a time based on distance and speed
-                    time = Mathf.Max(0.5f, agentDirection.Magnitude() / 400f);
-                    bTime = 0f;
+                if (bTime >= time)
+                {                   
+                    if (aiPlayer.CanJump)
+                    {
+                        //BezierCurve Smoothing for AI path
+                        //Curve is created between current ai position and next node and will then apply a velocity along the curve direction
+                        SetBezierCurvePoints(aiPlayer._RigidBody.Position, nextPos);
+
+                        //Get a time based on distance and speed
+                        time = Mathf.Max(0.5f, agentDirection.Magnitude() / 400f);
+                        bTime = 0f;
+                    }
                 }
 
                 if (agentDirection.Magnitude() < 50f)
                 {
-                    currentNode = currentNode.edges[currentNode.pathIndex].nextNode;
+                    if (CalculateClosestNode(AIManager.aiManager.player._RigidBody.Position) != agentPathfinding.goalState)
+                        GetNextPath();
+                    else
+                        currentNode = currentNode.edges[currentNode.pathIndex].nextNode;
                 }
             }
 
-            if (currentNode != currentPath[0])
+            //check if current node is greater than jump height, calculate new path if needed
+            if (currentNode.position.y - aiPlayer._RigidBody.Position.y > 400f)
             {
+                GetNextPath();
+                return;
+            }
+
+            if (currentNode != currentPath[0] && bTime <= time)
+            {
+                //Calculate normalised time for previous and current step
                 float nTimePrev = bTime / time;
                 bTime += Time.fixedDeltaTime;
                 float nTimeCurrent = bTime / time;
@@ -90,11 +104,9 @@ namespace AI
 
                 t = 1f - nTimeCurrent;
                 Vec2 currentVel = ((t * t) * p1) + (2 * t * nTimeCurrent * p2) + ((nTimeCurrent * nTimeCurrent) * p3);
-
                 Vec2 appliedVel = currentVel - prevVel;
 
-                //Allow gravity to affect AI normally 
-                //appliedVel.y = appliedVel.y / Time.fixedDeltaTime * aiPlayer._RigidBody.Mass;
+                //Allow gravity to affect AI normally
                 if (appliedVel.y >= 0.0f)
                 {
                     aiPlayer.CanJump = false;
@@ -106,13 +118,16 @@ namespace AI
                 }
 
                 aiPlayer._RigidBody.velocity.x = appliedVel.x;
-                appliedVel.x = appliedVel.x / Time.fixedDeltaTime * aiPlayer._RigidBody.Mass;
-                //aiPlayer._RigidBody.ApplyForceInstant(appliedVel);
             }
             else
             {
                 //Once a path has been found let loose the AI to follow player controls
                 agentDirection = (AIManager.aiManager.player._RigidBody.Position - aiPlayer._RigidBody.Position);
+                if (agentDirection.Magnitude() > 500f)
+                {
+                    GetNextPath();
+                }
+
                 if (agentDirection.x > 0.0f)
                 {
                     aiPlayer.horizontalInput = 1.0f;
@@ -156,21 +171,20 @@ namespace AI
         //Find a new path to player, if it exists already set the path to that instead
         public void GetNextPath()
         {
-            nodePair.A = CalculateClosestNode(aiPlayer._RigidBody.Position);
-            nodePair.B = CalculateClosestNode(AIManager.aiManager.player._RigidBody.Position);
+            //Create a node pair taking 2 nodes closest to player and AI
+            //nodePair.A = CalculateClosestNode(aiPlayer._RigidBody.Position);
+            //nodePair.B = CalculateClosestNode(AIManager.aiManager.player._RigidBody.Position);
 
-            if (AIManager.aiManager.PathExists(nodePair))
-            {
-                currentPath = AIManager.aiManager.calculatedPaths[nodePair];
-            }
-            else
-            {
-                agentPathfinding.initialState = nodePair.A;
-                agentPathfinding.goalState = nodePair.B;
-                currentPath = agentPathfinding.CreateNewAStarPath();
-                AIManager.aiManager.calculatedPaths.Add(nodePair, currentPath);
-            }
+            currentPath.Clear();
+
+            agentPathfinding.initialState = CalculateClosestNode(aiPlayer._RigidBody.Position);
+            agentPathfinding.goalState = CalculateClosestNode(AIManager.aiManager.player._RigidBody.Position);
+            currentPath = agentPathfinding.CreateNewAStarPath();
             currentNode = currentPath[currentPath.Count - 1];
+
+            Debug.Log("AI closest: " + CalculateClosestNode(aiPlayer._RigidBody.Position).name);
+            Debug.Log("Player closest: " + CalculateClosestNode(AIManager.aiManager.player._RigidBody.Position).name);
+            Debug.Log(currentNode.name);
         }
 
         //Loops through nodes to find node with shortest distance to passed position

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using UnityEngine;
 
+//I have used similar naming to unity physics systems so please be careful to not get mixed up when reading through code
 namespace AC_Physics
 {
     public class Rigid_Body: MonoBehaviour
@@ -112,11 +113,6 @@ namespace AC_Physics
             position = new Vec2(transform.position.x, transform.position.y);
         }
 
-        public void Update()
-        {
-
-        }
-
         public void FixedUpdate()
         {
             switch (bodyType)
@@ -182,7 +178,7 @@ namespace AC_Physics
                 crossSection = ((Circle_Collider)_collider).Radius;
             }
 
-            //Calculate drag and invert if force is facing negative direction
+            //Calculate drag and invert if force was facing negative direction
             Vec2 dragVelocity = Vec2.Zero;
             dragVelocity = 0.5f * WorldManager.wmInstance.AirDensity * drag * crossSection * (windVelocity * windVelocity);
 

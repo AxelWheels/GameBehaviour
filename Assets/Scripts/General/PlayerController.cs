@@ -23,5 +23,10 @@ public class PlayerController : MonoBehaviour
         
         if (Input.GetButtonDown("Fire1"))
             WorldManager.wmInstance.CreateExplosion(1000f, player._RigidBody);
+
+        if (player._RigidBody.velocity.x < 0)
+            player.transform.localScale = new Vector3(-1, 1, 1);
+        else
+            player.transform.localScale = Vector3.one;
     }
 }

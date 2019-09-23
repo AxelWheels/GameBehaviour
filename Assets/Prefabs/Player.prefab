@@ -24,9 +24,10 @@ GameObject:
   - component: {fileID: 114475886502844622}
   - component: {fileID: 114014691602102594}
   - component: {fileID: 114718552907016718}
+  - component: {fileID: 114621939821704034}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -46,16 +47,17 @@ MonoBehaviour:
     x: 0
     y: 0
   p_mat:
-    staticFriction: 0.5
-    dynamicFriction: 0.5
+    staticFriction: 0.3
+    dynamicFriction: 0.3
     density: 1
     restitution: 0.2
     frictionCombine: 3
+  trigger: 0
   bottomLeft:
-    x: -50
+    x: -25
     y: -50
   topRight:
-    x: 50
+    x: 25
     y: 50
 --- !u!114 &114125503081986142
 MonoBehaviour:
@@ -69,14 +71,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: b22bf597f3c9c404293e63709649ce24, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -98,15 +100,28 @@ MonoBehaviour:
   gravityScale: 1
   mass: 1
   invMass: 0
-  drag: 0.2
+  drag: 1
+  bodyType: 0
+  _collider: {fileID: 114014691602102594}
   velocity:
     x: 0
     y: 0
   acceleration:
     x: 0
     y: 0
-  bodyType: 0
-  _collider: {fileID: 114014691602102594}
+--- !u!114 &114621939821704034
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1427872806567588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 611c140ddbada8a42a4ebcf6c845c85f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerCamera: {fileID: 0}
+  player: {fileID: 114718552907016718}
 --- !u!114 &114718552907016718
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -118,10 +133,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56b446abbd30778498fda36e0071f813, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerCamera: {fileID: 0}
-  rigid_body: {fileID: 114475886502844622}
-  maxXVelocity: 10
-  maxYVelocity: 10
+  _rigidBody: {fileID: 114475886502844622}
+  horizontalInput: 0
+  verticalInput: 0
+  ySensitivity: 800
+  xSensitivity: 20
 --- !u!222 &222021047889816030
 CanvasRenderer:
   m_ObjectHideFlags: 1
@@ -143,6 +159,6 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1096, y: 605}
+  m_AnchoredPosition: {x: 810, y: 141}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}

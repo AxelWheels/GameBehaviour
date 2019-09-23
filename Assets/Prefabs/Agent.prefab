@@ -25,6 +25,8 @@ GameObject:
   - component: {fileID: 114718148108020132}
   - component: {fileID: 114237926092706556}
   - component: {fileID: 114719822721076188}
+  - component: {fileID: 114235455376719496}
+  - component: {fileID: 114778613104298178}
   m_Layer: 0
   m_Name: Agent
   m_TagString: Untagged
@@ -47,14 +49,30 @@ MonoBehaviour:
   mass: 1
   invMass: 0
   drag: 0.2
+  bodyType: 0
+  _collider: {fileID: 114718148108020132}
   velocity:
     x: 0
     y: 0
   acceleration:
     x: 0
     y: 0
-  bodyType: 0
-  _collider: {fileID: 114718148108020132}
+--- !u!114 &114235455376719496
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1743224524675042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b446abbd30778498fda36e0071f813, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _rigidBody: {fileID: 114089566924911784}
+  horizontalInput: 0
+  verticalInput: 0
+  ySensitivity: 800
+  xSensitivity: 20
 --- !u!114 &114237926092706556
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -66,14 +84,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1bc73a0e45e9ed74a9ae127f6cf27c98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  aiPlayer: {fileID: 0}
+  aiPlayer: {fileID: 114778613104298178}
   agentPathfinding: {fileID: 114719822721076188}
-  agentSpeed: 1
-  availableNodes:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  patrolPath: []
+  availableNodes: []
 --- !u!114 &114280222441195974
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -93,7 +106,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: b1c0841cfab759843bd745f64ec14708, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -123,10 +136,10 @@ MonoBehaviour:
     frictionCombine: 3
   trigger: 0
   bottomLeft:
-    x: -50
+    x: -25
     y: -50
   topRight:
-    x: 50
+    x: 25
     y: 50
 --- !u!114 &114719822721076188
 MonoBehaviour:
@@ -139,15 +152,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f35334b042e07fc4bbf360b48362275c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  vertices:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  InitialState: {fileID: 0}
-  GoalState: {fileID: 0}
+  vertices: []
+  initialState: {fileID: 0}
+  goalState: {fileID: 0}
   currentWeight: 0
+--- !u!114 &114778613104298178
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1743224524675042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b446abbd30778498fda36e0071f813, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _rigidBody: {fileID: 114089566924911784}
+  horizontalInput: 0
+  verticalInput: 0
+  ySensitivity: 800
+  xSensitivity: 20
 --- !u!222 &222103762579979156
 CanvasRenderer:
   m_ObjectHideFlags: 1
@@ -169,6 +193,6 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -717, y: 251}
+  m_AnchoredPosition: {x: -846, y: 532}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}

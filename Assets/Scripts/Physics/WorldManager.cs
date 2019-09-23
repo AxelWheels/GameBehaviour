@@ -70,16 +70,6 @@ namespace AC_Physics
                 wmInstance = this;
         }
 
-        public void Start()
-        {
-
-        }
-
-        public void Update()
-        {
-
-        }
-
         public void FixedUpdate()
         {
             for (int i = removeNextUpdate.Count - 1; i >= 0; i--)
@@ -109,20 +99,6 @@ namespace AC_Physics
                     DetectCollision(dynamicBodies[i], kinematicBodies[j]);
                 }
             }
-
-            //Call on collision events
-            //for (int i = 0; i < dCount; i++)
-            //{
-            //    dynamicBodies[i].UpdateCollisionState();
-            //}
-            //for (int i = 0, ic = staticBodies.Count; i < ic; i++)
-            //{
-            //    staticBodies[i].UpdateCollisionState();
-            //}
-            //for (int i = 0, ic = kinematicBodies.Count; i < ic; i++)
-            //{
-            //    kinematicBodies[i].UpdateCollisionState();
-            //}
         }
 
         //Checks if 2 colliders are intersecting and will run resolve if they are
@@ -161,84 +137,88 @@ namespace AC_Physics
 
         public void BroadPhase()
         {
-
+            //TODO
         }
         
         //This function handles the separating of collider, Resolution handles restitution, friction and positional correction
         public void ResolveCollision(CollisionInfo collisionInfo, Rigid_Body _collider, Rigid_Body _collided)
         {
-            //impulse resolution, applies velocity to both rigid bodies involved in collision and positional correction is done for resting objects to stop
-            //colliders sinking in to eachother. Mass is taken in to account any time velocity is changed.
-
-            float invMassCollider = 0;
-            float invMassCollided = 0;
-
-            if (_collider.Mass != 0)
-                invMassCollider = 1 / _collider.Mass;
-            if (_collided.Mass != 0)
-                invMassCollided = 1 / _collided.Mass;
-
-            // Calculate relative velocity
-            Vec2 rv = _collided.velocity - _collider.velocity;
-
-            // Calculate relative velocity in terms of the normal direction
-            float velAlongNormal = rv.DotProduct(collisionInfo.collisionNormal);
-
-            // Do not resolve if velocities are separating
-            if (velAlongNormal > 0)
-                return;
-
-            // Calculate restitution
-            float e = Mathf.Min(_collider.Collider.P_Mat.restitution, _collided.Collider.P_Mat.restitution);
-
-            // Calculate impulse scalar
-            float j = -(1 + e) * velAlongNormal;
-            j /= invMassCollider + invMassCollided;
-
-            // Apply impulse
-            Vec2 impulse = j * collisionInfo.collisionNormal;
-            _collider.velocity -= invMassCollider * impulse;
-            _collided.velocity += invMassCollided * impulse;
-
-            // Re-calculate relative velocity after normal impulse is applied
-            Vec2 impulseVel = _collided.velocity - _collider.velocity;
-
-            // Solve for the tangent vector
-            Vec2 tangent = impulseVel - impulseVel.DotProduct(collisionInfo.collisionNormal) * collisionInfo.collisionNormal;
-            tangent.Normalize();
-
-            // Solve for magnitude to apply along the friction vector
-            float jt = -impulseVel.DotProduct(tangent);
-            jt = jt / (invMassCollider + invMassCollided);
-
-            //Get coefficient based on Material attached to colliders
-            float mu = Physics_Material.CombineFrictions(_collider.Collider.P_Mat.staticFriction,
-                                              _collided.Collider.P_Mat.staticFriction,
-                                              _collider.Collider.P_Mat.frictionCombine);
-
-            // Clamp magnitude of friction and create impulse vector
-            Vec2 frictionImpulse;
-            if (Mathf.Abs(jt) < j * mu)
-                frictionImpulse = jt * tangent;
-            else
+            if (!_collider.Collider.Trigger && !_collided.Collider.Trigger)
             {
-                frictionImpulse = -j * tangent * Physics_Material.CombineFrictions(_collider.Collider.P_Mat.dynamicFriction, 
-                                                                                   _collided.Collider.P_Mat.dynamicFriction, 
-                                                                                   _collider.Collider.P_Mat.frictionCombine);
+                //impulse resolution, applies velocity to both rigid bodies involved in collision and positional correction is done for resting objects to stop
+                //colliders sinking in to eachother. Mass is taken in to account any time velocity is changed.
+
+                float invMassCollider = 0;
+                float invMassCollided = 0;
+
+                if (_collider.Mass != 0)
+                    invMassCollider = 1 / _collider.Mass;
+                if (_collided.Mass != 0)
+                    invMassCollided = 1 / _collided.Mass;
+
+                // Calculate relative velocity
+                Vec2 rv = _collided.velocity - _collider.velocity;
+
+                // Calculate relative velocity in terms of the normal direction
+                float velAlongNormal = rv.DotProduct(collisionInfo.collisionNormal);
+
+                // Do not resolve if velocities are separating
+                if (velAlongNormal > 0)
+                    return;
+
+                // Calculate restitution
+                float e = Mathf.Min(_collider.Collider.P_Mat.restitution, _collided.Collider.P_Mat.restitution);
+
+                // Calculate impulse scalar
+                float j = -(1 + e) * velAlongNormal;
+                j /= invMassCollider + invMassCollided;
+
+                // Apply impulse
+                Vec2 impulse = j * collisionInfo.collisionNormal;
+                _collider.velocity -= invMassCollider * impulse;
+                _collided.velocity += invMassCollided * impulse;
+
+                // Re-calculate relative velocity after normal impulse is applied
+                Vec2 impulseVel = _collided.velocity - _collider.velocity;
+
+                // Solve for the tangent vector
+                Vec2 tangent = impulseVel - impulseVel.DotProduct(collisionInfo.collisionNormal) * collisionInfo.collisionNormal;
+                tangent.Normalize();
+
+                // Solve for magnitude to apply along the friction vector
+                float jt = -impulseVel.DotProduct(tangent);
+                jt = jt / (invMassCollider + invMassCollided);
+
+                //Get coefficient based on Material attached to colliders
+                float mu = Physics_Material.CombineFrictions(_collider.Collider.P_Mat.staticFriction,
+                                                  _collided.Collider.P_Mat.staticFriction,
+                                                  _collider.Collider.P_Mat.frictionCombine);
+
+                // Clamp magnitude of friction and create impulse vector
+                Vec2 frictionImpulse;
+                if (Mathf.Abs(jt) < j * mu)
+                    frictionImpulse = jt * tangent;
+                else
+                {
+                    frictionImpulse = -j * tangent * Physics_Material.CombineFrictions(_collider.Collider.P_Mat.dynamicFriction,
+                                                                                       _collided.Collider.P_Mat.dynamicFriction,
+                                                                                       _collider.Collider.P_Mat.frictionCombine);
+                }
+
+                // Apply friction impulse
+                _collider.velocity -= invMassCollider * frictionImpulse;
+                _collided.velocity += invMassCollided * frictionImpulse;
+
+                //Correct for float precision error so object does not sink in to resting colliders
+                const float percent = 0.8f; // usually 20% to 80%
+                Vec2 correction = Vec2.Zero;
+                correction.x = (Mathf.Abs(collisionInfo.depth.x) / (invMassCollider + invMassCollided)) * percent * collisionInfo.collisionNormal.x;
+                correction.y = (Mathf.Abs(collisionInfo.depth.y) / (invMassCollider + invMassCollided)) * percent * collisionInfo.collisionNormal.y;
+                //Debug.Log("correction: " + _collider.gameObject.name + " " + correction.x + " " + correction.y);
+                _collider.Position -= invMassCollider * correction;
+                _collided.Position += invMassCollided * correction;
             }
 
-            // Apply friction impulse
-            _collider.velocity -= invMassCollider * frictionImpulse;
-            _collided.velocity += invMassCollided * frictionImpulse;
-
-            //Correct for float precision error so object does not sink in to resting colliders
-            const float percent = 0.8f; // usually 20% to 80%
-            Vec2 correction = Vec2.Zero;
-            correction.x = ( Mathf.Abs(collisionInfo.depth.x) / (invMassCollider + invMassCollided) ) * percent * collisionInfo.collisionNormal.x;
-            correction.y = ( Mathf.Abs(collisionInfo.depth.y) / (invMassCollider + invMassCollided) ) * percent * collisionInfo.collisionNormal.y;
-            //Debug.Log("correction: " + _collider.gameObject.name + " " + correction.x + " " + correction.y);
-            _collider.Position -= invMassCollider * correction;
-            _collided.Position += invMassCollided * correction;
 
             //Trigger on collision enter delegate. Default is an empty function
             _collider.Collider.CollisionEnter(_collided.Collider, collisionInfo);
@@ -432,11 +412,11 @@ namespace AC_Physics
             Vec2 acceleration = Vec2.Zero;
             Vec2 direction = Vec2.Zero;
 
-            Debug.Log(dynamicBodies.Count);
+            //Debug.Log(dynamicBodies.Count);
             for (int i = 0; i < dynamicBodies.Count; i++)
             {
-                Debug.Log(dynamicBodies[i].gameObject.name);
-                Debug.Log(source.gameObject.name);
+                //Debug.Log(dynamicBodies[i].gameObject.name);
+                //Debug.Log(source.gameObject.name);
 
                 if (dynamicBodies[i].gameObject.name != source.gameObject.name)
                 {
